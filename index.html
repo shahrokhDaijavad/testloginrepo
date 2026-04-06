@@ -11,7 +11,7 @@
     <h1>Sign In</h1>
     <p class="subtitle">Choose a method to sign in</p>
 
-    <form class="login-form">
+    <form class="login-form" id="loginForm">
       <label for="email">Email</label>
       <input type="email" id="email" placeholder="you@example.com" required>
 
@@ -24,7 +24,7 @@
     <div class="divider"><span>or continue with</span></div>
 
     <div class="social-buttons">
-      <button class="btn-social btn-google" onclick="alert('Google sign-in clicked')">
+      <button class="btn-social btn-google" id="googleBtn">
         <svg class="icon" viewBox="0 0 24 24">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -34,13 +34,77 @@
         Sign in with Google
       </button>
 
-      <button class="btn-social btn-apple" onclick="alert('Apple sign-in clicked')">
+      <button class="btn-social btn-apple" id="appleBtn">
         <svg class="icon" viewBox="0 0 24 24">
           <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" fill="currentColor"/>
         </svg>
         Sign in with Apple
       </button>
     </div>
+
+    <p id="errorMsg" class="error-msg"></p>
   </div>
+
+  <!-- Firebase SDK (compat mode for simplicity) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // TODO: Replace with your Firebase project config.
+    // Get this from: Firebase Console > Project Settings > General > Your apps > Web app
+    // Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDku5iZbAlPkuR4UbfDMs7LkGyiUrumwNc",
+      authDomain: "testlogin-393b8.firebaseapp.com",
+      projectId: "testlogin-393b8",
+      storageBucket: "testlogin-393b8.firebasestorage.app",
+      messagingSenderId: "123683623788",
+      appId: "1:123683623788:web:8d0472c3b6d7bfb5119949",
+      measurementId: "G-D4GSHDNL5S"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // If already signed in, go straight to dashboard
+    auth.onAuthStateChanged(function (user) {
+      if (user) {
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    function showError(msg) {
+      const el = document.getElementById("errorMsg");
+      el.textContent = msg;
+      el.style.display = "block";
+    }
+
+    // Email / password sign-in
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.signInWithEmailAndPassword(email, password).catch(function (err) {
+        showError(err.message);
+      });
+    });
+
+    // Google sign-in
+    document.getElementById("googleBtn").addEventListener("click", function () {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(function (err) {
+        showError(err.message);
+      });
+    });
+
+    // Apple sign-in
+    document.getElementById("appleBtn").addEventListener("click", function () {
+      const provider = new firebase.auth.OAuthProvider("apple.com");
+      auth.signInWithPopup(provider).catch(function (err) {
+        showError(err.message);
+      });
+    });
+  </script>
 </body>
 </html>

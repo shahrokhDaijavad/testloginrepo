@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="login-container dashboard">
+    <h1>Welcome!</h1>
+    <p class="subtitle">You are signed in</p>
+
+    <div id="loading" class="user-info">
+      <p>Loading...</p>
+    </div>
+
+    <div id="userInfo" class="user-info" style="display:none;">
+      <img id="userPhoto" class="user-photo" src="" alt="Profile photo">
+      <p class="user-name" id="userName"></p>
+      <p class="user-email" id="userEmail"></p>
+      <p class="user-provider" id="userProvider"></p>
+    </div>
+
+    <button class="btn-primary btn-signout" id="signOutBtn">Sign Out</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // TODO: Use the same Firebase config as in index.html
+    const firebaseConfig = {
+      apiKey: "AIzaSyDku5iZbAlPkuR4UbfDMs7LkGyiUrumwNc",
+      authDomain: "testlogin-393b8.firebaseapp.com",
+      projectId: "testlogin-393b8",
+      storageBucket: "testlogin-393b8.firebasestorage.app",
+      messagingSenderId: "123683623788",
+      appId: "1:123683623788:web:8d0472c3b6d7bfb5119949",
+      measurementId: "G-D4GSHDNL5S"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    auth.onAuthStateChanged(function (user) {
+      if (!user) {
+        // Not logged in — redirect to login page
+        window.location.href = "index.html";
+        return;
+      }
+
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("userInfo").style.display = "flex";
+
+      document.getElementById("userName").textContent = user.displayName || "No name";
+      document.getElementById("userEmail").textContent = user.email || "No email";
+
+      var photo = document.getElementById("userPhoto");
+      if (user.photoURL) {
+        photo.src = user.photoURL;
+      } else {
+        photo.style.display = "none";
+      }
+
+      // Show which provider was used
+      var providerName = "Email/Password";
+      if (user.providerData && user.providerData.length > 0) {
+        var pid = user.providerData[0].providerId;
+        if (pid === "google.com") providerName = "Google";
+        else if (pid === "apple.com") providerName = "Apple";
+      }
+      document.getElementById("userProvider").textContent = "Signed in via " + providerName;
+    });
+
+    document.getElementById("signOutBtn").addEventListener("click", function () {
+      auth.signOut().then(function () {
+        window.location.href = "index.html";
+      });
+    });
+  </script>
+</body>
+</html>
